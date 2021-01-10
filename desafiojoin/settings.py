@@ -130,8 +130,4 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfile')
 
 ALLOWED_HOSTS = ['https://desafioalvosjoin.herokuapp.com/']
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
-
 django_heroku.settings(locals())
