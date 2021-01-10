@@ -1,0 +1,74 @@
+{% extends 'alvos/base.html'%}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<div id="map"></div>
+
+<!-- Modal -->
+<div class="modal" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Conteúdo do Modal-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+
+                <form method="post">
+                    {% csrf_token %}
+                    {{ adicionar_alvo_form.as_p }}
+                    <label class="labels">Formato da Data: yyyy-mm-dd hh-mm-ss</label>
+
+                    <div class="form-group mt-5">
+                        <button type="submit" class="btn btn-primary float-end">
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <a href="{% url 'alvos:index' %}" class="btn btn-primary">Fechar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+let map;
+
+// Função para inicar o mapa
+function initMap() {
+    var marker;
+
+    //Carrega o mapa
+    map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: -0.27832, lng: 8.25031 }, // Mostra o mapa centralizado no globo
+        zoom: 3,
+    });
+
+    //Coloca os markers no mapa
+    {% for alvo in alvos %}
+        
+        var myLatLng = new google.maps.LatLng({{ alvo.latitude }}, {{ alvo.longitude }});
+
+        marker = new google.maps.Marker({
+            position: myLatLng,
+            map: map,
+            title: '{{ alvo.nome }}',
+        });
+
+    {% endfor %}
+    
+    //Abre o modal com configurações de só fechar no botão
+    $('#myModal').modal({backdrop: 'static', keyboard: false})
+    $("#myModal").modal('show');
+}
+
+</script>
+
+{% endblock content %}

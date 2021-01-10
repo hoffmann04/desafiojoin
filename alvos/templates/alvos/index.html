@@ -1,0 +1,83 @@
+{% extends 'alvos/base.html'%}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<div id="map"></div>
+
+<script>
+    let map;
+
+    function CreateControl(controlDiv, map) {
+        // CSS para arrumar a borda do botão
+        const controlUI = document.createElement("div");
+        controlUI.style.backgroundColor = "#fff";
+        controlUI.style.border = "2px solid #fff";
+        controlUI.style.borderRadius = "3px";
+        controlUI.style.boxShadow = "0 2px 6px rgba(0,0,0,.3)";
+        controlUI.style.cursor = "pointer";
+        controlUI.style.marginTop = "22px";
+        controlUI.style.marginBottom = "22px";
+        controlUI.style.textAlign = "center";
+        controlUI.title = "Clique para adicionar um alvo";
+        controlDiv.appendChild(controlUI);
+        // CSS para controlar o interior do botão
+        const controlText = document.createElement("div");
+        controlText.style.color = "rgb(25,25,25)";
+        controlText.style.fontFamily = "Roboto,Arial,sans-serif";
+        controlText.style.fontSize = "16px";
+        controlText.style.lineHeight = "38px";
+        controlText.style.paddingLeft = "5px";
+        controlText.style.paddingRight = "5px";
+        controlText.innerHTML = "Adicionar Alvo";
+        controlUI.appendChild(controlText);
+
+        // Quando clicar no botão, abrir a página que adiciona um alvo
+        controlUI.addEventListener("click", () => {
+            window.location.href = "{% url 'alvos:adicionar_alvo' %}"
+        });
+    }
+
+    // Função para iniciar o mapa
+    function initMap() {
+        var marker;
+
+        map = new google.maps.Map(document.getElementById("map"), {
+            // Centraliza o mapa no centro do globo
+            center: { lat: -0.27832, lng: 8.25031 },
+            zoom: 3,
+        });
+
+        // Cria a DIV pra guardar o botão de criação de um alvo
+        // E chama a função CreateControl passando essa div criada
+        const centerControlDiv = document.createElement("div");
+        CreateControl(centerControlDiv, map);
+        map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
+
+        // Coloca todos os alvos no mapa
+        {% for alvo in alvos %}
+
+            var myLatLng = new google.maps.LatLng({{ alvo.latitude }}, {{ alvo.longitude }});
+
+            marker = new google.maps.Marker({
+                position: myLatLng,
+                map: map,
+                title: '{{ alvo.nome }}',
+            });
+
+            // Coloca um EventListener em cada alvo para quando clicado abrir a página referente a edição de um alvo
+            google.maps.event.addListener(marker, 'click', (function(marker, content) {
+                return function () {
+                    
+                    console.log(marker.title)
+            
+                    window.location.href = "{% url 'alvos:edit_alvos' alvo.id %}"
+
+                }
+            })(marker, window.top));
+        {% endfor %}
+    }
+</script>
+
+{% endblock content %}

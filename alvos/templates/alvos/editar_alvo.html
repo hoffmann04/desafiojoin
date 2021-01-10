@@ -1,0 +1,80 @@
+{% extends 'alvos/base.html'%}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<div id="map"></div>
+
+<!-- Modal -->
+<div class="modal" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Conteúdo do Modal-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+
+                <form method="post">
+                    {% csrf_token %}
+                    {{ alvo_form.as_p }}
+                    <label class="labels">Formato da Data: yyyy-mm-dd hh-mm-ss</label>
+
+                    <div class="form-group mt-5">
+                        <button type="submit" class="btn btn-primary float-end">
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+
+                <form action="{% url 'alvos:deletar_alvo' alvoid %}" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-danger" value='Deletar'>
+                </form>
+                <a href="{% url 'alvos:index' %}" class="btn btn-primary">Cancelar</a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+let map;
+
+// Função para iniciar o mapa
+function initMap() {
+    var marker;
+
+    map = new google.maps.Map(document.getElementById("map"), {
+        // Coloca o centro do mapa onde o alvo está
+        center: { lat: parseFloat('{{ alvo_form.latitude.value }}'), lng: parseFloat('{{ alvo_form.longitude.value }}')},
+        zoom: 8,
+    });
+    
+    // Colocar todos os alvos no mapa
+    {% for alvo in alvos %}
+        console.log({{ alvo.latitude }}, {{ alvo.longitude }});
+        var myLatLng = new google.maps.LatLng({{ alvo.latitude }}, {{ alvo.longitude }});
+
+        marker = new google.maps.Marker({
+            position: myLatLng,
+            map: map,
+            title: '{{ alvo.nome }}',
+        });
+
+    {% endfor %}
+
+    // Mostrar o Modal
+    $('#myModal').modal({backdrop: 'static', keyboard: false})  
+    $("#myModal").modal('show');
+}
+
+</script>
+
+{% endblock content %}
